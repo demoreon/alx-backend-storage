@@ -1,28 +1,45 @@
 #!/usr/bin/env python3
 """
-Script that provides some stats about Nginx logs stored in MongoDB
+Aggregation operations
 """
-
 from pymongo import MongoClient
+from typing import Tuple
 
 
-if __name__ == "__main__":
-    client = MongoClient('mongodb://127.0.0.1:27017')
-    nginx_logs = client.logs.nginx
-    # get number of documents in collection
-    docs_num = nginx_logs.count_documents({})
-    get_num = nginx_logs.count_documents({'method': 'GET'})
-    post_num = nginx_logs.count_documents({'method': 'POST'})
-    put_num = nginx_logs.count_documents({'method': 'PUT'})
-    patch_num = nginx_logs.count_documents({'method': 'PATCH'})
-    delete_num = nginx_logs.count_documents({'method': 'DELETE'})
-    get_status = nginx_logs.count_documents({'method': 'GET',
-                                             'path': '/status'})
-    print("{} logs".format(docs_num))
-    print("Methods:")
-    print("\tmethod GET: {}".format(get_num))
-    print("\tmethod POST: {}".format(post_num))
-    print("\tmethod PUT: {}".format(put_num))
-    print("\tmethod PATCH: {}".format(patch_num))
-    print("\tmethod DELETE: {}".format(delete_num))
-    print("{} status check".format(get_status))
+def get_nginx_stats() -> Tuple:
+    """
+    Queries nginx collection for specific data
+    - Returns:
+        - count of all documents
+        - count of each method in the collection
+        - count of each GET calls to /status path
+    """
+    client: MongoClient = MongoClient()
+    db = client.logs
+    collection = db.nginx
+    methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    method_stats = []
+    for method in methods:
+        method_count = collection.count_documents({'method': method})
+        method_stats.append({'method': method, 'count': method_count})
+    doc_count = collection.estimated_document_count()
+    status_path_stats = collection.count_documents({'method': 'GET',
+                                                        'path': '/status'})
+    client.close()
+    return doc_count, method_stats, status_path_stats
+
+
+    def print_nginx_stats() -> None:
+        """
+        Prints stats from nginx query
+        """
+        doc_count, method_stats, status_path_stats = get_nginx_stats()
+        print(f'{doc_count} logs')
+        print('Methods:')
+        for method in method_stats:
+            print(f'\tmethod {method.get("method")}: {method.get("count")}')
+        print(f'{status_path_stats} status check')
+
+
+        if __name__ == '__main__':
+            print_nginx_stats()
