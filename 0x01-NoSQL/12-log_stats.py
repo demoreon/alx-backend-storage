@@ -29,17 +29,17 @@ def get_nginx_stats() -> Tuple:
     return doc_count, method_stats, status_path_stats
 
 
-    def print_nginx_stats() -> None:
-        """
-        Prints stats from nginx query
-        """
-        doc_count, method_stats, status_path_stats = get_nginx_stats()
-        print(f'{doc_count} logs')
-        print('Methods:')
-        for method in method_stats:
-            print(f'\tmethod {method.get("method")}: {method.get("count")}')
-        print(f'{status_path_stats} status check')
+def print_nginx_stats() -> None:
+    """
+    Prints stats from nginx query
+    """
+    doc_count, method_stats, status_path_stats = get_nginx_stats()
+    print(f'{doc_count} logs')
+    print('Methods:')
+    for method in method_stats:
+        print(f'\tmethod {method.get("method")}: {method.get("count")}')
+    print(f'{status_path_stats} status check')
 
 
-        if __name__ == '__main__':
-            print_nginx_stats()
+if __name__ == '__main__':
+    print_nginx_stats()
