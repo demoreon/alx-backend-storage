@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Redis module
+Redis module to count calls and track history
 """
 import sys
 from functools import wraps
@@ -14,8 +14,7 @@ UnionOfTypes = Union[str, bytes, int, float]
 
 def count_calls(method: Callable) -> Callable:
     """
-    a system to count how many
-    times methods of the Cache class are called.
+    Call counter.
     :param method:
     :return:
     """
